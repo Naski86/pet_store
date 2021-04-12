@@ -1,0 +1,272 @@
+openapi: "3.0.0"
+info:
+  description: API Specification for Pet Store
+  version: 1.0.0
+  title:  Pet Store
+  license:
+    name: CTO Global APIs
+  contact:
+    email: daniel.fernandezdelpilar@gruposantander.com    
+servers:
+  - url: http://petstore.swagger.io/
+  - url: localhost:8080/petstore/
+paths:
+  /pets:
+    get:
+      summary: List all pets for type
+      operationId: listpets
+      parameters:
+        - name: type
+          in: query
+          description: Type of pet to return
+          required: false
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: A paged array of pets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pets'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors"
+    post:
+      summary: Add a new pet to the store
+      description: Add a new pet to the store
+      operationId: addpet
+      requestBody:
+        description: Create a new pet the type of animal
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/petCreateRequest'
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pet'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors" 
+  /pets/{pet_id}:
+    get:
+      summary: Find pet by ID
+      description: Returns a single pet
+      operationId: showpetById
+      parameters:
+        - name: pet_id
+          in: path
+          description: ID of pet to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pet'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors"
+components:
+  schemas:
+    pets:
+      type: array
+      items:
+        $ref: "#/components/schemas/pet"
+    pet:
+        oneOf:
+          - $ref: '#/components/schemas/cat'
+          - $ref: '#/components/schemas/dog'
+          - $ref: '#/components/schemas/lizard'        
+    petCreateRequest:
+        oneOf:
+          - $ref: '#/components/schemas/catCreateRequest'
+          - $ref: '#/components/schemas/dogCreateRequest'
+          - $ref: '#/components/schemas/lizardCreateRequest'
+    dogCreateRequest:
+      description: Create of a Dog
+      type: object
+      properties:   
+        petType:
+          type: string
+          example: Dog             
+        name:
+          type: string
+          example: Snoopy         
+        dogFrom:
+          type: string
+          description: The measured skill for hunting
+          enum:
+            - adopted
+            - rescued
+            - gift
+            - stray
+    catCreateRequest:
+      description: Create of a cat
+      type: object
+      properties:
+        petType:
+          type: string
+          example: Cat             
+        name:
+          type: string
+          example: Silvestre         
+        atribute:
+          type: string
+          description: The measured skill for hunting
+          example: lazy
+          enum:
+            - clueless
+            - lazy
+            - adventurous
+            - aggressive
+    lizardCreateRequest:
+      description: Create of a Lizard
+      type: object
+      properties:       
+        petType:
+          type: string
+          example: lizard            
+        name:
+          type: string
+          example: Bruni           
+        packSize:
+          type: string
+          description: The size of the Lizard
+          example: Small
+          enum:
+            - Small
+            - Medium
+            - Large
+    cat:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1     
+        petType:
+          type: string
+          example: Cat           
+        name:
+          type: string
+          example: Gardfiel         
+        atribute:
+          type: string
+          description: The measured skill for hunting
+          example: clueless
+          enum:
+            - clueless
+            - lazy
+            - adventurous
+            - aggressive
+    dog:
+      description: A representation of a dog
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          example: 2    
+        petType:
+          type: string
+          example: Dog           
+        name:
+          type: string
+          example: scooby      
+        Dogfrom:
+            type: string
+            description: where is the dog from
+            example: adopted
+            enum:
+              - adopted
+              - rescued
+              - gift
+              - stray
+    lizard:
+      description: A representation of a Lizard
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          example: 5     
+        petType:
+          type: string
+          example: lizard           
+        name:
+          type: string
+          example: Leopard         
+        packSize:
+          type: string
+          description: The size of the Lizard
+          example: Small
+          enum:
+          - Small
+          - Medium
+          - Large
+    errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/error'
+      description: List of errors.
+    error:
+      type: object
+      required:
+        - code
+        - message
+        - level
+        - description
+      properties:
+        code:
+          type: integer
+          description: "Unique alphanumeric human readable error code."
+          example: xxx           
+        message:
+          type: string
+          description: "Brief summary of issue reported."          
+          example: Message          
+        level:
+          type: string
+          description: "Different issue level: info, warning, error." 
+          example: Error            
+        description:
+          type: string
+          description: "Detailed description of the issue reported."
+          example: Description        
